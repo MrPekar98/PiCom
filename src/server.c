@@ -1,13 +1,11 @@
+// Server send '1', if command has been terminated successfully, '0' elsewise.
+
 #include <stdio.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <string.h>
 #include "server.h"
+#include "pi_controller.h"
 #define PORT 58091
-
-// Globals
-int sockfd;	// Socket descriptor.
-int error = 0;	// Tells if error.
 
 // Prototypes
 static inline server_con init_sock(unsigned port);

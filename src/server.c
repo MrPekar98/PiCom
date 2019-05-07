@@ -1,4 +1,4 @@
-// Server send '1', if command has been terminated successfully, '0' elsewise.
+// Server send '1', if command has been terminated successfully, '0' otherwise.
 
 #include <stdio.h>
 #include <netdb.h>
@@ -10,6 +10,7 @@
 // Prototypes
 static inline server_con init_sock(unsigned port);
 static inline int connect_client(int sockfd);
+void exec_read(int client_sock);
 
 // Main function
 int main()
@@ -33,6 +34,10 @@ int main()
       printf("Connection to controller lost. Trying again...\n");
       continue;
     }
+
+    printf("Connected.\n");
+    exec_read(client_fd);
+    printf("Lost connection. Trying again...\n");
   }
   while (1);
 
@@ -70,4 +75,23 @@ static inline int connect_client(int sockfd)
   int client_size = sizeof(client);
   
   return accept(sockfd, (struct sockaddr *) &client, &client_size);
+}
+
+// Reads from client and executed command. Returns when an error occurs.
+void exec_read(int client_sock)
+{
+  char buffer[DATA_LEN + 10], ans[2];
+  int error = 0;
+
+  do
+  {
+    error = read(client_sock, buffer, DATA_LEN + 10);
+
+    if (error < 0)
+      return;
+
+    ans[0] = (char) pi_menu(parse_picommand(buffer)) + TO_NUM;
+    error = write(client_sock, ans, 18);
+  }
+  while (error >= 0);
 }

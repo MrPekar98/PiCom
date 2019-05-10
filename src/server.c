@@ -1,8 +1,6 @@
 // Server send '1', if command has been terminated successfully, '0' otherwise.
 
 #include <stdio.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include "server.h"
 #include "pi_controller.h"
 #define PORT 58091
@@ -27,6 +25,7 @@ int main()
       continue;
     }
 
+    printf("Connecting...\n");
     int client_fd = connect_client(socket.sockfd);
 
     if (client_fd < 0)
@@ -56,12 +55,12 @@ static inline server_con init_sock(unsigned port)
     return con;
   }
 
-  bzero((char *) &con.socket, sizeof(con.socket));
-  con.socket.sin_family = AF_INET;
-  con.socket.sin_addr.s_addr = INADDR_ANY;
-  con.socket.sin_port = htons(port);
+  bzero((char *) &con.s_addr, sizeof(con.s_addr));
+  con.s_addr.sin_family = AF_INET;
+  con.s_addr.sin_addr.s_addr = INADDR_ANY;
+  con.s_addr.sin_port = htons(port);
 
-  if (bind(con.sockfd, (struct sockaddr *) &con.socket, sizeof(con.socket)) < 0)
+  if (bind(con.sockfd, (struct sockaddr *) &con.s_addr, sizeof(con.s_addr)) < 0)
     con.error = 1;
 
   return con;

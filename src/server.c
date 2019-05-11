@@ -97,7 +97,7 @@ static void exec_read(int client_sock)
     ans[0] = (char) pi_menu(parse_picommand(buffer)) + TO_NUM;
     error = write(client_sock, ans, 18);
   }
-  while (error >= 0 && timeout <= 60);
+  while (error >= 0 && timeout <= 120);
 
   pthread_cancel(thread);
 }

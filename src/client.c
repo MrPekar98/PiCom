@@ -12,7 +12,7 @@ void connect_client(server_con *connection);
 // Main function.
 int main()
 {
-  printf("Initialising connection...\n");
+  printf("Connecting...\n");
 
   while (1)
   {
@@ -21,8 +21,11 @@ int main()
     if (client_con.error)
       continue;
 
-    printf("Connection setup. Connecting to server...\n");
     connect_client(&client_con);
+
+    if (client_con.error)
+      continue;
+
     printf("Connected to server.\n");
     
     // Start communicating.
@@ -35,7 +38,7 @@ int main()
 // Initialises client.
 server_con init_client(const char *hostname, int port)
 {
-  server_con con = {.sockfd = socket(AF_INET, SOCK_STREAM, 0)};
+  server_con con = {.sockfd = socket(AF_INET, SOCK_STREAM, 0), .error = 0};
 
   if (con.sockfd < 0)
   {
@@ -62,5 +65,5 @@ server_con init_client(const char *hostname, int port)
 // Connects to server.
 void connect_client(server_con *connection)
 {
-  connection->error = connect(connection->sockfd, (struct sockaddr *) (connection.s_addr), sizeof(connection->s_addr));
+  connection->error = connect(connection->sockfd, (struct sockaddr *) &(connection->s_addr), sizeof(connection->s_addr));
 }

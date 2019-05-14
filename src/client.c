@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "server.h"
 #include "pi_controller.h"
 #define PORT 58091
@@ -15,20 +16,30 @@ char *com_server(pi_command command, server_con connection);
 // Main function.
 int main()
 {
+  server_con client_con;
+
   while (1)
   {
     const pi_command com = prompt_command();
 
-    printf("Connecting...\n");
-    server_con client_con = init_client("127.0.0.1", PORT);
+    printf("\nConnecting...\n");
+    client_con = init_client("127.0.0.1", PORT);
 
     if (client_con.error)
+    {
+      printf("Could not setup connection. Starting over...\n\n");
+      close(client_con.sockfd);
       continue;
+    }
 
     connect_client(&client_con);
 
     if (client_con.error)
+    {
+      printf("Could not connect to server. Starting over...\n\n");
+      close(client_con.sockfd);
       continue;
+    }
 
     printf("Connected to server.\n");
     
@@ -38,12 +49,16 @@ int main()
     if (response == NULL)
     {
       printf("Error communicating.Trying again...\n");
+      close(client_con.sockfd);
       continue;
     }
 
-    printf("-> %s\n\n", response);
+    printf("\n-> %s\n\n", response);
+    close(client_con.sockfd);
+    sleep(1);
   }
 
+  close(client_con.sockfd);
   return 0;
 }
 
@@ -51,10 +66,10 @@ int main()
 pi_command prompt_command()
 {
   pi_command c;
-  printf("1) - exec\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n");
+  printf("Options\n1) - exec\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
   scanf("%d", &c.com);
-
-  // Ask for data.
+  printf("Data: ");
+  scanf(" %[A-Za-z -\".',/\\]", c.data);
 
   return c;
 }

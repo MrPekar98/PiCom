@@ -1,7 +1,7 @@
-// Server send '1', if command has been terminated successfully, '0' otherwise.
+// Server send '1', if command has been terminated successfully, '0' otherwise. If command 'ls' is called, then the output is sent.
 
 #include <stdio.h>
-#include <pthread.h>
+#include <unistd.h>
 #include <time.h>
 #include "server.h"
 #include "pi_controller.h"
@@ -11,19 +11,23 @@
 static inline server_con init_sock(unsigned port);
 static inline int connect_client(int sockfd);
 static void exec_read(int client_sock);
-void *timer(void *p);
+void timer(int *p, unsigned limit);
 
 // Main function
 int main()
 {
   printf("Initialising connection...\n");
+  server_con socket;
 
   do
   {
-    server_con socket = init_sock(PORT);
+    socket = init_sock(PORT);
 
     if (socket.error)
+    {
+      close(socket.sockfd);
       continue;
+    }
 
     printf("Connecting...\n");
     int client_fd = connect_client(socket.sockfd);
@@ -31,15 +35,20 @@ int main()
     if (client_fd < 0)
     {
       printf("Connection to controller lost. Trying again...\n");
+      close(socket.sockfd);
+      close(client_fd);
       continue;
     }
 
     printf("Connected.\n");
     exec_read(client_fd);
-    printf("Lost connection. Trying again...\n");
+    printf("\nSession ended. Starting over...\n");
+    close(socket.sockfd);
+    close(client_fd);
   }
   while (1);
 
+  close(socket.sockfd);
   return 0;
 }
 
@@ -81,10 +90,7 @@ static void exec_read(int client_sock)
 {
   char buffer[DATA_LEN + 10], ans[2];
   int error = 0;
-  long timeout = 0;
-  pthread_t thread;
   printf("ID\tMessage\n\n");
-  pthread_create(&thread, NULL, timer, &timeout);
 
   do
   {
@@ -93,23 +99,21 @@ static void exec_read(int client_sock)
     if (error < 0 || strlen(buffer) <= 1)
       continue;
 
+    buffer[strlen(buffer)] = '\0';
     printf("%d\t%s\n", client_sock, buffer);
     ans[0] = (char) pi_menu(parse_picommand(buffer)) + TO_NUM;
     error = write(client_sock, ans, 18);
   }
-  while (error >= 0 && timeout <= 120);
-
-  pthread_cancel(thread);
+  while (error >= 0 && strlen(buffer) <= 1);
 }
 
 // Increments time value in seconds.
-void *timer(void *p)
+void timer(int *p, unsigned limit)
 {
   time_t start = time(NULL);
 
-  while (1)
+  while (*p <= limit)
   {
-    long t = time(NULL) - start;
-    p = (void *) &t;
+    *p = time(NULL) - start;
   }
 }

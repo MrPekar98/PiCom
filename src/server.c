@@ -42,9 +42,9 @@ int main()
 
     printf("Connected.\n");
     exec_read(client_fd);
-    printf("\nSession ended. Starting over...\n");
     close(socket.sockfd);
     close(client_fd);
+    printf("\nSession ended. Starting over...\n");
   }
   while (1);
 
@@ -55,7 +55,7 @@ int main()
 // Initialises socket.
 static inline server_con init_sock(unsigned port)
 {
-  server_con con = {.error = 0};
+  server_con con;
   con.sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
   if (con.sockfd < 0)
@@ -72,6 +72,7 @@ static inline server_con init_sock(unsigned port)
   if (bind(con.sockfd, (struct sockaddr *) &con.s_addr, sizeof(con.s_addr)) < 0)
     con.error = 1;
 
+  con.error = 0;
   return con;
 }
 

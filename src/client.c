@@ -10,7 +10,7 @@ const char *ip1 = "192.168.38.1", *ip2 = "192.168.8.104";
 // Prototypes
 pi_command prompt_command();
 server_con init_client(const char *hostname, int port);
-void connect_client(server_con *connection);
+void connect_client(server_con connection);
 char *com_server(pi_command command, server_con connection);
 
 // Main function.
@@ -32,7 +32,7 @@ int main()
       continue;
     }
 
-    connect_client(&client_con);
+    connect_client(client_con);
 
     if (client_con.error)
     {
@@ -41,18 +41,19 @@ int main()
       continue;
     }
 
-    printf("Connected to server.\n");
+    printf("Connected to server.\n");	// TODO: Program somehow terminates after this command after first communication round.
     
     // Start communicating.
     char *response = com_server(com, client_con);
 
     if (response == NULL)
     {
-      printf("Error communicating.Trying again...\n");
+      printf("Error communicating. Trying again...\n");
       close(client_con.sockfd);
       continue;
     }
 
+    system("clear");
     printf("\n-> %s\n\n", response);
     close(client_con.sockfd);
     sleep(1);
@@ -102,9 +103,9 @@ server_con init_client(const char *hostname, int port)
 }
 
 // Connects to server.
-void connect_client(server_con *connection)
+void connect_client(server_con connection)
 {
-  connection->error = connect(connection->sockfd, (struct sockaddr *) &(connection->s_addr), sizeof(connection->s_addr));
+  connect(connection.sockfd, (struct sockaddr *) &(connection.s_addr), sizeof(connection.s_addr));
 }
 
 // Communicates to server.

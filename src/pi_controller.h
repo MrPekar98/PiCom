@@ -5,7 +5,7 @@
 #define DATA 2
 
 // Commands
-enum command {EXEC = 1, MKDIR, RMDIR, TOUCH, RM, RAW};
+enum command {EXEC = 1, MKDIR, RMDIR, TOUCH, RM, LS, RAW};
 
 // Structure representing command passed through a network.
 typedef struct
@@ -19,9 +19,9 @@ pi_command parse_picommand(char *command);
 char *tostring(pi_command com);
 
 // Menu for executing command.
-int pi_menu(pi_command command)
+char *pi_menu(pi_command command)
 {
-
+  return "ANSWER!";
 }
 
 // Parses string to pi_command. Example: "2;Hello, world"

@@ -40,7 +40,7 @@ int main()
       continue;
     }
 
-    printf("Connected.\n");
+    printf("Connected.\n\n");
     exec_read(client_fd);
     close(socket.sockfd);
     close(client_fd);
@@ -89,7 +89,7 @@ static inline int connect_client(int sockfd)
 // Reads from client and executed command. Returns when an error occurs.
 static void exec_read(int client_sock)
 {
-  char buffer[DATA_LEN + 10], ans[2];
+  char buffer[DATA_LEN + 10], ans[DATA_LEN];
   int error = 0;
   printf("ID\tMessage\n\n");
 
@@ -102,7 +102,7 @@ static void exec_read(int client_sock)
 
     buffer[strlen(buffer)] = '\0';
     printf("%d\t%s\n", client_sock, buffer);
-    ans[0] = (char) pi_menu(parse_picommand(buffer)) + TO_NUM;
+    strcpy(ans, pi_menu(parse_picommand(buffer)));
     error = write(client_sock, ans, 18);
   }
   while (error >= 0 && strlen(buffer) <= 1);

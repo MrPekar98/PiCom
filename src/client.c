@@ -10,7 +10,7 @@ const char *ip1 = "192.168.38.1", *ip2 = "192.168.8.104";
 // Prototypes
 pi_command prompt_command();
 server_con init_client(const char *hostname, int port);
-void connect_client(server_con connection);
+void connect_client(server_con *connection);
 char *com_server(pi_command command, server_con connection);
 
 // Main function.
@@ -27,15 +27,17 @@ int main()
 
     if (client_con.error)
     {
+      system("clear");
       printf("Could not setup connection. Starting over...\n\n");
       close(client_con.sockfd);
       continue;
     }
 
-    connect_client(client_con);
+    connect_client(&client_con);
 
     if (client_con.error)
     {
+      system("clear");
       printf("Could not connect to server. Starting over...\n\n");
       close(client_con.sockfd);
       continue;
@@ -48,6 +50,7 @@ int main()
 
     if (response == NULL)
     {
+      system("clear");
       printf("Error communicating. Trying again...\n");
       close(client_con.sockfd);
       continue;
@@ -56,7 +59,7 @@ int main()
     system("clear");
     printf("\n-> %s\n\n", response);
     close(client_con.sockfd);
-    sleep(1);
+    sleep(2);
   }
 
   close(client_con.sockfd);
@@ -103,9 +106,10 @@ server_con init_client(const char *hostname, int port)
 }
 
 // Connects to server.
-void connect_client(server_con connection)
+void connect_client(server_con *connection)
 {
-  connect(connection.sockfd, (struct sockaddr *) &(connection.s_addr), sizeof(connection.s_addr));
+  if (connect(connection->sockfd, (struct sockaddr *) &(connection->s_addr), sizeof(connection->s_addr)) < 0)
+    connection->error = 1;
 }
 
 // Communicates to server.

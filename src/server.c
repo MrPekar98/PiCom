@@ -42,13 +42,14 @@ int main()
 
     printf("Connected.\n\n");
     exec_read(client_fd);
-    close(socket.sockfd);
-    close(client_fd);
+    //close(socket.sockfd);
+    //close(client_fd);
+    shutdown(socket.sockfd, SHUT_RDWR);
+    shutdown(client_fd, SHUT_RDWR);
     printf("\nSession ended. Starting over...\n");
   }
   while (1);
 
-  close(socket.sockfd);
   return 0;
 }
 
@@ -80,7 +81,7 @@ static inline server_con init_sock(unsigned port)
 static inline int connect_client(int sockfd)
 {
   struct sockaddr_in client;
-  listen(sockfd, 1);
+  listen(sockfd, 5);
   int client_size = sizeof(client);
   
   return accept(sockfd, (struct sockaddr *) &client, &client_size);

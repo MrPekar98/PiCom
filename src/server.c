@@ -11,7 +11,6 @@
 static inline server_con init_sock(unsigned port);
 static inline int connect_client(int sockfd);
 static void exec_read(int client_sock);
-void timer(int *p, unsigned limit);
 
 // Main function
 int main()
@@ -42,10 +41,8 @@ int main()
 
     printf("Connected.\n\n");
     exec_read(client_fd);
-    //close(socket.sockfd);
-    //close(client_fd);
-    shutdown(socket.sockfd, SHUT_RDWR);
-    shutdown(client_fd, SHUT_RDWR);
+    close(socket.sockfd);
+    close(client_fd);
     printf("\nSession ended. Starting over...\n");
   }
   while (1);
@@ -94,10 +91,11 @@ static void exec_read(int client_sock)
   int error = 0;
   printf("ID\tMessage\n\n");
 
-  do
+  // TODO: Need proper condition to tell when client has disconnected.
+  while (error >= 0)
   {
     error = read(client_sock, buffer, DATA_LEN + 10);
-
+   
     if (error < 0 || strlen(buffer) <= 1)
       continue;
 
@@ -105,17 +103,7 @@ static void exec_read(int client_sock)
     printf("%d\t%s\n", client_sock, buffer);
     strcpy(ans, pi_menu(parse_picommand(buffer)));
     error = write(client_sock, ans, 18);
-  }
-  while (error >= 0 && strlen(buffer) <= 1);
-}
-
-// Increments time value in seconds.
-void timer(int *p, unsigned limit)
-{
-  time_t start = time(NULL);
-
-  while (*p <= limit)
-  {
-    *p = time(NULL) - start;
+    memset(buffer, 0, DATA_LEN + 10);
+    memset(ans, 0, DATA_LEN);
   }
 }

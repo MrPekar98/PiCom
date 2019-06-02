@@ -21,7 +21,7 @@ int main()
 
   if (client_con.error)
   {
-    printf("Could not setup connection. Starting over...\n\n");
+    printf("Could not setup connection.\n\n");
     close(client_con.sockfd);
     return 1;
   }
@@ -30,7 +30,7 @@ int main()
 
   if (client_con.error)
   {
-    printf("Could not connect to server. Starting over...\n\n");
+    printf("Could not connect to server.\n\n");
     close(client_con.sockfd);
     return 1;
   }

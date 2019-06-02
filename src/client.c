@@ -16,50 +16,42 @@ char *com_server(pi_command command, server_con connection);
 // Main function.
 int main()
 {
-  server_con client_con;
+  printf("Connecting...\n");
+  server_con client_con = init_client("127.0.0.1", PORT);
 
-  while (1)
+  if (client_con.error)
   {
+    printf("Could not setup connection. Starting over...\n\n");
+    close(client_con.sockfd);
+    return 1;
+  }
+
+  connect_client(&client_con);
+
+  if (client_con.error)
+  {
+    printf("Could not connect to server. Starting over...\n\n");
+    close(client_con.sockfd);
+    return 1;
+  }
+
+  printf("Connected to server.\n");
+
+  // Start communicating.
+  while (1)
+  {    
     const pi_command com = prompt_command();
-
-    printf("\nConnecting...\n");
-    client_con = init_client("127.0.0.1", PORT);
-
-    if (client_con.error)
-    {
-      system("clear");
-      printf("Could not setup connection. Starting over...\n\n");
-      close(client_con.sockfd);
-      continue;
-    }
-
-    connect_client(&client_con);
-
-    if (client_con.error)
-    {
-      system("clear");
-      printf("Could not connect to server. Starting over...\n\n");
-      close(client_con.sockfd);
-      continue;
-    }
-
-    printf("Connected to server.\n");	// TODO: Program somehow terminates after this command after first communication round.
-    
-    // Start communicating.
     char *response = com_server(com, client_con);
 
     if (response == NULL)
     {
-      system("clear");
       printf("Error communicating. Trying again...\n");
       close(client_con.sockfd);
       continue;
     }
 
-    system("clear");
     printf("\n-> %s\n\n", response);
-    close(client_con.sockfd);
-    sleep(2);
+    sleep(1);
   }
 
   close(client_con.sockfd);

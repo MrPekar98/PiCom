@@ -21,7 +21,7 @@ char *tostring(pi_command com);
 // Menu for executing command.
 char *pi_menu(pi_command command)
 {
-  return "ANSWER!";
+  return "Invalid command.";
 }
 
 // Parses string to pi_command. Example: "2;Hello, world"

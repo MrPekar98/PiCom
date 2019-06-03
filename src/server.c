@@ -9,7 +9,6 @@
 static inline server_con init_sock(unsigned port);
 static inline int connect_client(int sockfd);
 static void exec_read(int client_sock);
-void timer(volatile unsigned *t);
 static inline size_t cut_segment(char *buffer);
 char *substring(char *str, unsigned end);
 
@@ -90,9 +89,7 @@ static void exec_read(int client_sock)
 {
   char buffer[DATA_LEN + 10], ans[DATA_LEN];
   int error = 0;
-  unsigned volatile time = 0;
   printf("ID\tMessage\n\n");
-  const int pid = fork();
 
   while (error >= 0)
   {
@@ -108,17 +105,6 @@ static void exec_read(int client_sock)
     error = write(client_sock, ans, 18);
     memset(buffer, 0, DATA_LEN + 10);
     memset(ans, 0, DATA_LEN);
-  }
-}
-
-// Increments value by one for each second.
-void timer(volatile unsigned *t)
-{
-  time_t start = time(NULL);
-
-  while (1)
-  {
-    *t = time(NULL) - start;
   }
 }
 

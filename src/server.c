@@ -1,5 +1,3 @@
-// Server send '1', if command has been terminated successfully, '0' otherwise. If command 'ls' is called, then the output is sent.
-
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
@@ -11,6 +9,7 @@
 static inline server_con init_sock(unsigned port);
 static inline int connect_client(int sockfd);
 static void exec_read(int client_sock);
+void timer(volatile unsigned *t);
 static inline size_t cut_segment(char *buffer);
 char *substring(char *str, unsigned end);
 
@@ -91,15 +90,16 @@ static void exec_read(int client_sock)
 {
   char buffer[DATA_LEN + 10], ans[DATA_LEN];
   int error = 0;
+  unsigned volatile time = 0;
   printf("ID\tMessage\n\n");
+  const int pid = fork();
 
-  // TODO: Need proper condition to tell when client has disconnected.
   while (error >= 0)
   {
     error = read(client_sock, buffer, DATA_LEN + 10);
-   
+ 
     if (error < 0 || strlen(buffer) <= 1)
-      continue;
+      return;
 
     const size_t buffer_len = cut_segment(buffer);
     buffer[buffer_len] = '\0';
@@ -108,6 +108,17 @@ static void exec_read(int client_sock)
     error = write(client_sock, ans, 18);
     memset(buffer, 0, DATA_LEN + 10);
     memset(ans, 0, DATA_LEN);
+  }
+}
+
+// Increments value by one for each second.
+void timer(volatile unsigned *t)
+{
+  time_t start = time(NULL);
+
+  while (1)
+  {
+    *t = time(NULL) - start;
   }
 }
 

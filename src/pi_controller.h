@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #define DATA_LEN 50
 #define TO_NUM 48
 #define COM 0
@@ -17,11 +18,38 @@ typedef struct
 // Prototypes
 pi_command parse_picommand(char *command);
 char *tostring(pi_command com);
+char *run_command(pi_command com);
+char *run_command_arg(char *command, char *arg);
 
 // Menu for executing command.
 char *pi_menu(pi_command command)
 {
-  return "Invalid command.";
+  switch (command.com)
+  {
+    case EXEC:
+      break;
+
+    case MKDIR:
+      return run_command_arg("mkdir", command.data);
+
+    case RMDIR:
+      return run_command_arg("rmdir", command.data);
+
+    case TOUCH:
+      return run_command_arg("touch", command.data);
+
+    case RM:
+      return run_command_arg("rm", command.data);
+
+    case LS:
+      return run_command_arg("ls", command.data);
+
+    case RAW:
+      return run_command(command);
+
+    default:
+      return "Invalid command.";
+  }
 }
 
 // Parses string to pi_command. Example: "2;Hello, world"
@@ -41,4 +69,43 @@ char *tostring(pi_command com)
   static char result[DATA_LEN + 3];
   sprintf(result, "%d;%s", com.com, com.data);
   return result;
+}
+
+// Returns output of command.
+char *run_command(pi_command com)
+{
+  char *temp = (char *) malloc(sizeof(char) * DATA_LEN);
+  char *out = (char *) malloc(sizeof(char) * DATA_LEN);
+  FILE *p = popen(com.data, "r");
+
+  while (fgets(temp, DATA_LEN, p) != NULL)
+  {
+    strcat(out, temp);
+    strcat(out, "\n");
+  }
+
+  free(temp);
+  fclose(p);
+  return out;
+}
+
+// Returns output of command given arguments of command.
+char *run_command_arg(char *command, char *arg)
+{
+  char *temp = (char *) malloc(sizeof(char) * DATA_LEN);
+  char *out = (char *) malloc(sizeof(char) * DATA_LEN * 10);
+  char *com = (char *) malloc(sizeof(char) * (strlen(command) + strlen(arg) + 2));
+  sprintf(com, "%s %s", command, arg);
+  FILE *p = popen(com, "r");
+  free(com);
+
+  while (fgets(temp, DATA_LEN, p) != NULL)
+  {
+    strcat(out, temp);
+    strcat(out, "\n");
+  }
+
+  free(temp);
+  fclose(p);
+  return out;
 }

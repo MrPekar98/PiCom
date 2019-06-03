@@ -62,7 +62,7 @@ pi_command prompt_command()
 {
   pi_command c;
   printf("Options\n1) - exec\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
-  scanf("%d", &c.com);
+  scanf("%d", (int *) &c.com);
   printf("Data: ");
   scanf(" %[A-Za-z -\".',/\\-]", c.data);
 
@@ -107,7 +107,7 @@ void connect_client(server_con *connection)
 char *com_server(pi_command command, server_con connection)
 {
   char *buffer = (char *) malloc(sizeof(char) * (DATA_LEN + 1));
-  sprintf(buffer, "%d;%s", strlen(tostring(command)), tostring(command));
+  sprintf(buffer, "%d;%s", (int) strlen(tostring(command)), tostring(command));
 
   if (write(connection.sockfd, buffer, strlen(buffer)) < 0)
     return NULL;

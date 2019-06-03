@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include "server.h"
 #include "pi_controller.h"
@@ -65,7 +64,7 @@ pi_command prompt_command()
   printf("Options\n1) - exec\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
   scanf("%d", &c.com);
   printf("Data: ");
-  scanf(" %[A-Za-z -\".',/\\]", c.data);
+  scanf(" %[A-Za-z -\".',/\\-]", c.data);
 
   return c;
 }
@@ -107,13 +106,15 @@ void connect_client(server_con *connection)
 // Communicates to server.
 char *com_server(pi_command command, server_con connection)
 {
-  char *buffer = (char *) malloc(sizeof(char) * 51);
-  bzero(buffer, 51);
+  char *buffer = (char *) malloc(sizeof(char) * (DATA_LEN + 1));
+  sprintf(buffer, "%d;%s", strlen(tostring(command)), tostring(command));
 
-  if (write(connection.sockfd, tostring(command), strlen(tostring(command))) < 0)
+  if (write(connection.sockfd, buffer, strlen(buffer)) < 0)
     return NULL;
 
-  else if (read(connection.sockfd, buffer, 50) < 0)
+  bzero(buffer, (DATA_LEN + 1));
+
+  if (read(connection.sockfd, buffer, DATA_LEN) < 0)
     return NULL;
 
   return buffer;

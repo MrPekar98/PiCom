@@ -11,6 +11,8 @@
 static inline server_con init_sock(unsigned port);
 static inline int connect_client(int sockfd);
 static void exec_read(int client_sock);
+static inline size_t cut_segment(char *buffer);
+char *substring(char *str, unsigned end);
 
 // Main function
 int main()
@@ -99,11 +101,46 @@ static void exec_read(int client_sock)
     if (error < 0 || strlen(buffer) <= 1)
       continue;
 
-    buffer[strlen(buffer)] = '\0';
+    const size_t buffer_len = cut_segment(buffer);
+    buffer[buffer_len] = '\0';
     printf("%d\t%s\n", client_sock, buffer);
     strcpy(ans, pi_menu(parse_picommand(buffer)));
     error = write(client_sock, ans, 18);
     memset(buffer, 0, DATA_LEN + 10);
     memset(ans, 0, DATA_LEN);
   }
+}
+
+// Removes first segment of input and returns first segment as number.
+static inline size_t cut_segment(char *buffer)
+{
+  unsigned i, counter = 0, met = 0;
+  char *temp = (char *) malloc(strlen(buffer) * sizeof(char) - 1);
+
+  for (i = 0; i < strlen(buffer); i++)
+  {
+    if (buffer[i] == ';' && !met)
+      met = i;
+
+    else if (met)
+      temp[counter++] = buffer[i];
+  }
+
+  const size_t size = atoi(substring(buffer, met));
+  sprintf(buffer, "%s", temp);
+  return size;
+}
+
+// Substring function.
+char *substring(char *str, unsigned end)
+{
+  char *res = (char *) malloc(sizeof(char) * end);
+  unsigned i;
+
+  for (i = 0; i < end; i++)
+  {
+    res[i] = str[i];
+  }
+
+  return res;
 }

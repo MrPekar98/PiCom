@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <unistd.h>
 #include "server.h"
 #include "pi_controller.h"
 #define PORT 58091
@@ -64,7 +63,7 @@ pi_command prompt_command()
   printf("Options\n1) - exec\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
   scanf("%d", (int *) &c.com);
   printf("Data: ");
-  scanf(" %[A-Za-z -\".',/\\-]", c.data);
+  scanf(" %[A-Za-z -\".',/\\-0-9]", c.data);
 
   return c;
 }

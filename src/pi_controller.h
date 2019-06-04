@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #define DATA_LEN 50
 #define TO_NUM 48
 #define COM 0
@@ -20,6 +21,9 @@ pi_command parse_picommand(char *command);
 char *tostring(pi_command com);
 char *run_command(pi_command com);
 char *run_command_arg(char *command, char *arg);
+void run_command_proc(char *proc, char *input);
+char *proc_name(char *command);
+char *proc_input(char *command);
 
 // Menu for executing command.
 char *pi_menu(pi_command command)
@@ -45,7 +49,8 @@ char *pi_menu(pi_command command)
       return run_command_arg("ls", command.data);
 
     case RAW:
-      return run_command(command);
+      run_command_proc(proc_name(command.data), proc_input(command.data));
+      break;
 
     default:
       return "Invalid command.";
@@ -108,4 +113,63 @@ char *run_command_arg(char *command, char *arg)
   free(temp);
   fclose(p);
   return out;
+}
+
+// TODO: Download Java server at make it open the program.
+// Runs external bash script.
+void run_command_proc(char *proc, char *input)
+{
+  const int pid = fork();
+
+  if (pid == 0)
+  {
+    char *pname = (char *) malloc(sizeof(char) * (strlen(proc) + 3));
+    sprintf(pname, "sudo bash %s.sh", proc);
+    FILE *p = popen(pname, "w");
+
+    fprintf(p, "%s\n", input);
+    free(pname);
+    fclose(p);	// TODO: Might have to not close file to make it run until it ends.
+  }
+
+  else
+    wait(NULL);
+}
+
+// Returns process name of string command.
+char *proc_name(char *command)
+{
+  const size_t len = strlen(command);
+  char *res = (char *) malloc(sizeof(char) * len);
+  unsigned i = 0;
+
+  while (command[i] != ' ')
+  {
+    res[i] = command[i++];
+  }
+
+  return res;
+}
+
+// Returns input to process.
+char *proc_input(char *command)
+{
+  unsigned counter = 0, i;
+  const size_t len = strlen(command);
+  char *res = (char *) malloc(sizeof(char) * len);
+
+  for (i = 0; i < len; i++)
+  {
+    if (command[i] == ' ')
+    {
+      for (; i < len; i++)
+      {
+        res[counter++] = command[i];
+      }
+
+      return res;
+    }
+  }
+
+  return NULL;
 }

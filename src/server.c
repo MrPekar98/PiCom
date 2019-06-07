@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <time.h>
 #include "server.h"
 #include "pi_controller.h"
@@ -9,7 +8,7 @@
 static inline server_con init_sock(unsigned port);
 static inline int connect_client(int sockfd);
 static void exec_read(int client_sock);
-static inline size_t cut_segment(char *buffer);
+static inline size_t cut_segment(char *buffer, size_t buffer_length);
 char *substring(char *str, unsigned end);
 
 // Main function
@@ -87,34 +86,34 @@ static inline int connect_client(int sockfd)
 // Reads from client and executed command. Returns when an error occurs.
 static void exec_read(int client_sock)
 {
-  char buffer[DATA_LEN + 10], ans[DATA_LEN];
+  char buffer[DATA_LEN + 10], ans[DATA_LEN * 50];
   int error = 0;
   printf("ID\tMessage\n\n");
 
   while (error >= 0)
   {
+    memset(buffer, 0, DATA_LEN + 10);
+    memset(ans, 0, DATA_LEN * 50);
     error = read(client_sock, buffer, DATA_LEN + 10);
  
     if (error < 0 || strlen(buffer) <= 1)
       return;
 
-    const size_t buffer_len = cut_segment(buffer);
+    const size_t buffer_len = cut_segment(buffer, DATA_LEN + 10);
     buffer[buffer_len] = '\0';
-    printf("%d\t%s\n", client_sock, buffer);
+    printf("%d\t%d;%s\n", client_sock, (int) buffer_len, buffer);
     strcpy(ans, pi_menu(parse_picommand(buffer)));
-    error = write(client_sock, ans, 18);
-    memset(buffer, 0, DATA_LEN + 10);
-    memset(ans, 0, DATA_LEN);
+    error = write(client_sock, ans, strlen(ans));
   }
 }
 
 // Removes first segment of input and returns first segment as number.
-static inline size_t cut_segment(char *buffer)
+static inline size_t cut_segment(char *buffer, size_t buffer_length)
 {
   unsigned i, counter = 0, met = 0;
-  char *temp = (char *) malloc(strlen(buffer) * sizeof(char) - 1);
+  char *temp = (char *) malloc(buffer_length * sizeof(char) - 1);
 
-  for (i = 0; i < strlen(buffer); i++)
+  for (i = 0; i < buffer_length; i++)
   {
     if (buffer[i] == ';' && !met)
       met = i;
@@ -139,5 +138,6 @@ char *substring(char *str, unsigned end)
     res[i] = str[i];
   }
 
+  res[end] = '\0';
   return res;
 }

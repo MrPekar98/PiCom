@@ -105,7 +105,7 @@ void connect_client(server_con *connection)
 // Communicates to server.
 char *com_server(pi_command command, server_con connection)
 {
-  char *buffer = (char *) malloc(sizeof(char) * (DATA_LEN + 1));
+  char *buffer = (char *) malloc(sizeof(char) * (DATA_LEN * 50));
   sprintf(buffer, "%d;%s", (int) strlen(tostring(command)), tostring(command));
 
   if (write(connection.sockfd, buffer, strlen(buffer)) < 0)

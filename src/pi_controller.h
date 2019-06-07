@@ -31,6 +31,7 @@ char *pi_menu(pi_command command)
   switch (command.com)
   {
     case EXEC:
+      run_command_proc(proc_name(command.data), proc_input(command.data));
       break;
 
     case MKDIR:
@@ -49,8 +50,7 @@ char *pi_menu(pi_command command)
       return run_command_arg("ls", command.data);
 
     case RAW:
-      run_command_proc(proc_name(command.data), proc_input(command.data));
-      break;
+      return run_command(command);
 
     default:
       return "Invalid command.";
@@ -80,7 +80,7 @@ char *tostring(pi_command com)
 char *run_command(pi_command com)
 {
   char *temp = (char *) malloc(sizeof(char) * DATA_LEN);
-  char *out = (char *) malloc(sizeof(char) * DATA_LEN);
+  char *out = (char *) malloc(sizeof(char) * DATA_LEN * 10);
   FILE *p = popen(com.data, "r");
 
   while (fgets(temp, DATA_LEN, p) != NULL)
@@ -124,7 +124,7 @@ void run_command_proc(char *proc, char *input)
   if (pid == 0)
   {
     char *pname = (char *) malloc(sizeof(char) * (strlen(proc) + 3));
-    sprintf(pname, "sudo bash %s.sh", proc);
+    sprintf(pname, "bash %s.sh", proc);
     FILE *p = popen(pname, "w");
 
     fprintf(p, "%s\n", input);

@@ -131,9 +131,6 @@ void run_command_proc(char *proc, char *input)
     free(pname);
     fclose(p);	// TODO: Might have to not close file to make it run until it ends.
   }
-
-  else
-    wait(NULL);
 }
 
 // Returns process name of string command.

@@ -60,7 +60,7 @@ int main()
 pi_command prompt_command()
 {
   pi_command c;
-  printf("Options\n1) - exec\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
+  printf("Options\n1) - bash\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
   scanf("%d", (int *) &c.com);
   printf("Data: ");
   scanf(" %[A-Za-z -\".',/\\-0-9]", c.data);
@@ -113,7 +113,7 @@ char *com_server(pi_command command, server_con connection)
 
   bzero(buffer, (DATA_LEN + 1));
 
-  if (read(connection.sockfd, buffer, DATA_LEN) < 0)
+  if (read(connection.sockfd, buffer, DATA_LEN * 50) < 0)
     return NULL;
 
   return buffer;

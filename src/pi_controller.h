@@ -115,7 +115,6 @@ char *run_command_arg(char *command, char *arg)
   return out;
 }
 
-// TODO: Download Java server at make it open the program.
 // Runs external bash script.
 void run_command_proc(char *proc, char *input)
 {

@@ -1,2 +1,2 @@
 # PiCom
-A program to control a Raspberry Pi over the internet.
+A program to control a Linux OS over the internet.

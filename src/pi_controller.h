@@ -121,7 +121,7 @@ void run_command_proc(char *proc)
   if (pid == 0)
   {
     char *command = (char *) malloc(sizeof(char) * strlen(proc) + 9);
-    sprintf(command, "xdg-open %s.sh", proc);
+    sprintf(command, "xdg-open %s.out", proc);
     system(command);
     free(command);
   }

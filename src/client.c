@@ -60,7 +60,7 @@ int main()
 pi_command prompt_command()
 {
   pi_command c;
-  printf("Options\n1) - bash\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
+  printf("Options\n1) - EXEC (.out)\n2) - mkdir\n3) - rmdir\n4) - touch\n5) - rm\n6) - ls\n7) - raw command\n\n: ");
   scanf("%d", (int *) &c.com);
   printf("Data: ");
   scanf(" %[A-Za-z -\".',/\\-0-9]", c.data);

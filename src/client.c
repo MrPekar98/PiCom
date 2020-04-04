@@ -37,7 +37,7 @@ int main()
 
   // Start communicating.
   while (1)
-  {    
+  {
     const pi_command com = prompt_command();
     char *response = com_server(com, client_con);
 

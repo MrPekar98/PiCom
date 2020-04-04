@@ -87,6 +87,7 @@ char *run_command(pi_command com)
     strcat(out, "\n");
   }
 
+  strcat(out, " \0")
   free(temp);
   fclose(p);
   return out;

@@ -30,7 +30,7 @@ char *pi_menu(pi_command command)
   {
     case EXEC:
       run_command_proc(command.data);
-      break;
+      return " ";
 
     case MKDIR:
       return run_command_arg("mkdir", command.data);
@@ -108,6 +108,7 @@ char *run_command_arg(char *command, char *arg)
     strcat(out, "\n");
   }
 
+  strcat(out, " \0");
   free(temp);
   fclose(p);
   return out;

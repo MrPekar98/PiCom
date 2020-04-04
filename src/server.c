@@ -79,7 +79,7 @@ static inline int connect_client(int sockfd)
   struct sockaddr_in client;
   listen(sockfd, 5);
   int client_size = sizeof(client);
-  
+
   return accept(sockfd, (struct sockaddr *) &client, &client_size);
 }
 
@@ -95,7 +95,7 @@ static void exec_read(int client_sock)
     memset(buffer, 0, DATA_LEN + 10);
     memset(ans, 0, DATA_LEN * 50);
     error = read(client_sock, buffer, DATA_LEN + 10);
- 
+
     if (error < 0 || strlen(buffer) <= 1)
       return;
 

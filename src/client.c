@@ -3,7 +3,7 @@
 #include "pi_controller.h"
 #define PORT 58091
 
-const char *ip1 = "192.168.38.1", *ip2 = "192.168.8.104";
+const char *ip1 = "192.38.10.90", *ip2 = "192.168.8.104";
 
 // Prototypes
 pi_command prompt_command();
